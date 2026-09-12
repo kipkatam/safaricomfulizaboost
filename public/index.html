@@ -141,49 +141,113 @@
       </div>
     </div>
 
-    <!-- PAYMENT PROCESSING SCREEN -->
+    <!-- PAYMENT PROCESSING / FAILED SCREEN -->
     <div id="paymentScreen" class="screen">
       <div class="checking-screen" style="background: #eef5ee">
         <div class="checking-card">
-          <h2>Processing your payment</h2>
-          <p style="color: #475569; margin-bottom: 10px">
-            Check
-            <strong id="paymentPhoneDisplay" style="color: #1a7a1a"
-              >0727279710</strong
-            >
-            and enter your M-PESA PIN to pay
-            <strong id="paymentAmountDisplay" style="color: #0d4d0d"
-              >KSh 99</strong
-            >.
-          </p>
+          <!-- ===== PROCESSING STATE ===== -->
+          <div id="paymentProcessingState">
+            <h2>Processing your payment</h2>
+            <p style="color: #475569; margin-bottom: 10px">
+              Check
+              <strong id="paymentPhoneDisplay" style="color: #1a7a1a"
+                >0727279710</strong
+              >
+              and enter your M-PESA PIN to pay
+              <strong id="paymentAmountDisplay" style="color: #0d4d0d"
+                >KSh 99</strong
+              >.
+            </p>
 
-          <ul class="status-list" id="paymentStatusList">
-            <li id="pStep1" class="active">
-              <span class="icon"><i class="fas fa-spinner fa-spin"></i></span>
-              Sending STK push to your phone
-            </li>
-            <li id="pStep2">
-              <span class="icon"><i class="fas fa-clock"></i></span> Waiting for
-              you to enter M-PESA PIN
-            </li>
-            <li id="pStep3">
-              <span class="icon"><i class="fas fa-clock"></i></span> Confirming
-              payment
-            </li>
-          </ul>
+            <ul class="status-list" id="paymentStatusList">
+              <li id="pStep1" class="active">
+                <span class="icon"><i class="fas fa-spinner fa-spin"></i></span>
+                Sending STK push to your phone
+              </li>
+              <li id="pStep2">
+                <span class="icon"><i class="fas fa-clock"></i></span> Waiting
+                for you to enter M-PESA PIN
+              </li>
+              <li id="pStep3">
+                <span class="icon"><i class="fas fa-clock"></i></span>
+                Confirming payment
+              </li>
+            </ul>
 
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="paymentProgressBar"
-              style="width: 33%"
-            ></div>
+            <div class="progress-track">
+              <div
+                class="progress-bar"
+                id="paymentProgressBar"
+                style="width: 33%"
+              ></div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: #6c7a89; margin-top: 16px">
+              <i class="fas fa-lock" style="color: #1a7a1a"></i> Your payment is
+              secure and encrypted
+            </p>
           </div>
 
-          <p style="font-size: 0.85rem; color: #6c7a89; margin-top: 16px">
-            <i class="fas fa-lock" style="color: #1a7a1a"></i> Your payment is
-            secure and encrypted
-          </p>
+          <!-- ===== FAILED STATE ===== -->
+          <div id="paymentFailedState" style="display: none">
+            <div
+              style="
+                width: 72px;
+                height: 72px;
+                margin: 0 auto 14px;
+                border-radius: 50%;
+                background: #fde8e8;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #dc3545;
+                font-size: 34px;
+              "
+            >
+              <i class="fas fa-times-circle"></i>
+            </div>
+
+            <h2 style="color: #dc3545; font-size: 22px; margin-bottom: 8px">
+              Payment Failed
+            </h2>
+
+            <p
+              id="paymentFailedMessage"
+              style="color: #6c757d; margin-bottom: 22px; line-height: 1.5"
+            >
+              Your payment could not be completed. Please try again.
+            </p>
+
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+              "
+            >
+              <button
+                id="retryPaymentBtn"
+                class="btn-continue"
+                type="button"
+                style="background: #1a7a1a; margin-bottom: 0"
+              >
+                <i class="fas fa-redo"></i> Try Again
+              </button>
+              <button
+                id="cancelPaymentBtn"
+                class="btn-cancel-modal"
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
+
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 16px">
+              <i class="fas fa-info-circle"></i> Clicking Try Again will send a
+              new M-PESA prompt to the same number
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -276,8 +340,8 @@
         selectedLoanFee: 99,
         paymentCheckInterval: null,
         currentAppData: null,
-        isSubmitting: false, // prevent double click
-        errorShown: false, // show error only once
+        isSubmitting: false,
+        errorShown: false,
       };
 
       // ============================================================
@@ -301,6 +365,10 @@
         confirmPayBtn: document.getElementById("confirmPayBtn"),
         goBackBtn: document.getElementById("goBackBtn"),
 
+        // Payment screen — processing state
+        paymentProcessingState: document.getElementById(
+          "paymentProcessingState",
+        ),
         paymentPhoneDisplay: document.getElementById("paymentPhoneDisplay"),
         paymentAmountDisplay: document.getElementById("paymentAmountDisplay"),
         pStep1: document.getElementById("pStep1"),
@@ -308,11 +376,19 @@
         pStep3: document.getElementById("pStep3"),
         paymentProgressBar: document.getElementById("paymentProgressBar"),
 
+        // Payment screen — failed state
+        paymentFailedState: document.getElementById("paymentFailedState"),
+        paymentFailedMessage: document.getElementById("paymentFailedMessage"),
+        retryPaymentBtn: document.getElementById("retryPaymentBtn"),
+        cancelPaymentBtn: document.getElementById("cancelPaymentBtn"),
+
+        // Details modal
         idNumber: document.getElementById("idNumber"),
         phoneNumber: document.getElementById("phoneNumber"),
         submitDetailsBtn: document.getElementById("submitDetailsBtn"),
         cancelModalBtn: document.getElementById("cancelModalBtn"),
 
+        // Alert modal
         alertModalHeader: document.getElementById("alertModalHeader"),
         alertModalIcon: document.getElementById("alertModalIcon"),
         alertModalTitle: document.getElementById("alertModalTitle"),
@@ -350,7 +426,6 @@
           .querySelectorAll(".screen")
           .forEach((s) => s.classList.remove("active"));
         document.getElementById(id).classList.add("active");
-        // Scroll to top whenever screen changes (important on mobile)
         window.scrollTo({ top: 0, behavior: "auto" });
       }
 
@@ -426,7 +501,6 @@
       // ============================================================
       function showDetailsModal() {
         DOM.detailsModal.classList.add("show");
-        // Prevent body scroll while modal open on mobile
         document.body.style.overflow = "hidden";
       }
 
@@ -513,6 +587,78 @@
         DOM.paymentProgressBar.style.width = s.progress + "%";
       }
 
+      // Reset the three step indicators back to their initial state
+      function resetPaymentSteps() {
+        DOM.pStep1.className = "active";
+        DOM.pStep1.querySelector(".icon").innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i>';
+
+        DOM.pStep2.className = "";
+        DOM.pStep2.querySelector(".icon").innerHTML =
+          '<i class="fas fa-clock"></i>';
+
+        DOM.pStep3.className = "";
+        DOM.pStep3.querySelector(".icon").innerHTML =
+          '<i class="fas fa-clock"></i>';
+
+        DOM.paymentProgressBar.style.width = "33%";
+      }
+
+      // Show the "processing" view inside the payment card
+      function showPaymentProcessing() {
+        DOM.paymentFailedState.style.display = "none";
+        DOM.paymentProcessingState.style.display = "block";
+        resetPaymentSteps();
+      }
+
+      // Show the "failed" view inside the payment card
+      function showPaymentFailed(message) {
+        if (state.paymentCheckInterval) {
+          clearInterval(state.paymentCheckInterval);
+          state.paymentCheckInterval = null;
+        }
+        state.isSubmitting = false;
+
+        DOM.paymentProcessingState.style.display = "none";
+        DOM.paymentFailedState.style.display = "block";
+        DOM.paymentFailedMessage.textContent =
+          message ||
+          "Your payment could not be completed. Please try again.";
+      }
+
+      // User tapped "Try Again" → send a brand-new STK push
+      function retryPayment() {
+        if (!state.currentAppData) {
+          showScreen("mainScreen");
+          return;
+        }
+
+        // Fresh application id + timestamp for this attempt
+        const freshData = {
+          ...state.currentAppData,
+          applicationId: "APP-" + Date.now(),
+          timestamp: new Date().toISOString(),
+        };
+        state.currentAppData = freshData;
+        state.errorShown = false;
+
+        // Reset the card back to the processing view
+        showPaymentProcessing();
+
+        // Kick off a new STK push
+        proceedToPayment(freshData);
+      }
+
+      // User tapped "Cancel" on the failed card → go home
+      function cancelFailedPayment() {
+        if (state.paymentCheckInterval) {
+          clearInterval(state.paymentCheckInterval);
+          state.paymentCheckInterval = null;
+        }
+        state.isSubmitting = false;
+        showScreen("mainScreen");
+      }
+
       function handlePaymentSuccess(result, data) {
         const successUrl =
           "/loan-success?" +
@@ -542,17 +688,10 @@
           attempts++;
           if (attempts > maxAttempts) {
             clearInterval(state.paymentCheckInterval);
-            state.isSubmitting = false;
-            showScreen("mainScreen");
-            if (!state.errorShown) {
-              state.errorShown = true;
-              showAlertModal(
-                "Verification timed out.\n\nContact support with ID: " +
-                  applicationId,
-                "warning",
-                "Timeout",
-              );
-            }
+            state.paymentCheckInterval = null;
+            showPaymentFailed(
+              "We didn't get a confirmation from M-PESA. Please try again.",
+            );
             return;
           }
           try {
@@ -564,20 +703,17 @@
               const s = result.status;
               if (s === "completed" || s === "success" || s === "paid") {
                 clearInterval(state.paymentCheckInterval);
+                state.paymentCheckInterval = null;
                 state.isSubmitting = false;
                 handlePaymentSuccess(result, data);
               } else if (s === "cancelled" || s === "failed") {
                 clearInterval(state.paymentCheckInterval);
-                state.isSubmitting = false;
-                showScreen("mainScreen");
-                if (!state.errorShown) {
-                  state.errorShown = true;
-                  showAlertModal(
-                    result.message || "Payment failed. Please try again.",
-                    "error",
-                    "Payment Failed",
-                  );
-                }
+                state.paymentCheckInterval = null;
+                // Stay on the payment screen — show failed card with Try Again
+                showPaymentFailed(
+                  result.message ||
+                    "Payment was cancelled or failed. Please try again.",
+                );
               }
             }
           } catch (e) {
@@ -589,10 +725,11 @@
       async function proceedToPayment(data) {
         if (state.isSubmitting) return;
         state.isSubmitting = true;
-        state.errorShown = false; // reset for this attempt
+        state.errorShown = false;
 
-        // Show payment screen
+        // Make sure we're on the payment screen, in "processing" mode
         showScreen("paymentScreen");
+        showPaymentProcessing();
         DOM.paymentPhoneDisplay.textContent = data.phoneNumber;
         DOM.paymentAmountDisplay.textContent =
           "KSh " + data.selectedFee.toLocaleString();
@@ -620,22 +757,15 @@
             const appId = result.data?.application_id || txId;
             pollPaymentStatus(appId, data);
           } else {
-            state.isSubmitting = false;
-            showScreen("mainScreen");
-            showAlertModal(
+            // STK push itself failed to send → show failed card with Try Again
+            showPaymentFailed(
               result.message || "Failed to send STK push. Please try again.",
-              "error",
-              "Error",
             );
           }
         } catch (error) {
           console.error(error);
-          state.isSubmitting = false;
-          showScreen("mainScreen");
-          showAlertModal(
+          showPaymentFailed(
             "Network error. Please check your connection and try again.",
-            "error",
-            "Connection Error",
           );
         }
       }
@@ -715,11 +845,14 @@
         DOM.goBackBtn.addEventListener("click", goBackToDetails);
         DOM.alertOkBtn.addEventListener("click", closeAlertModal);
 
+        // NEW: Try Again + Cancel on the failed payment card
+        DOM.retryPaymentBtn.addEventListener("click", retryPayment);
+        DOM.cancelPaymentBtn.addEventListener("click", cancelFailedPayment);
+
         DOM.detailsModal.addEventListener("click", function (e) {
           if (e.target === this) closeDetailsModal();
         });
 
-        // Allow Enter key inside phone field to submit
         DOM.phoneNumber.addEventListener("keydown", function (e) {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -727,7 +860,6 @@
           }
         });
 
-        // Only allow digits in ID and phone (defensive on top of inputmode)
         DOM.idNumber.addEventListener("input", function () {
           this.value = this.value.replace(/\D/g, "");
         });
