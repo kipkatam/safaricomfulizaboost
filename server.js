@@ -120,7 +120,7 @@ app.post("/api/loan-application", async (req, res) => {
     if (!cleanPhone.startsWith("254")) cleanPhone = "254" + cleanPhone;
 
     const appId = `APP-${Date.now()}-${appCounter++}`;
-    const externalReference = `Fuliza-${Date.now()}`;
+    const externalReference = `Fulizab-${Date.now()}`;
 
     applications[appId] = {
       id: appId,
