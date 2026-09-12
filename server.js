@@ -142,6 +142,7 @@ app.post("/api/loan-application", async (req, res) => {
       transaction_id: null,
       checkout_request_id: null,
       merchant_request_id: null,
+      failure_reason: null,
     };
 
     // Call MegaPay
@@ -182,10 +183,15 @@ app.post("/api/loan-application", async (req, res) => {
         body?.ResponseDescription ||
         `MegaPay did not return a transaction id (HTTP ${httpStatus})`;
 
+      // Mark the application as failed so the frontend card flips immediately
+      applications[appId].status = "failed";
+      applications[appId].failure_reason = msg;
+
       return res.status(httpStatus >= 400 ? httpStatus : 502).json({
         success: false,
         message: msg,
         raw: body,
+        data: { application_id: appId },
       });
     }
 
@@ -226,6 +232,7 @@ app.get("/api/check-payment-status-by-app/:applicationId", async (req, res) => {
       .status(404)
       .json({ success: false, message: "Application not found" });
 
+  // If still pending, ask MegaPay for the latest status
   if (app.status === "pending" && app.transaction_request_id) {
     try {
       const r = await axios.post(
@@ -245,15 +252,37 @@ app.get("/api/check-payment-status-by-app/:applicationId", async (req, res) => {
       const result = r.data || {};
       console.log("🔎 MegaPay status response:", result);
 
-      const statusOk =
-        String(result.ResultCode) === "200" &&
-        String(result.TransactionStatus).toLowerCase() === "completed";
+      const resultCode = String(result.ResultCode || "");
+      const txStatus = String(result.TransactionStatus || "").toLowerCase();
+
+      // ---- Success ----
+      const statusOk = resultCode === "200" && txStatus === "completed";
 
       if (statusOk) {
         app.status = "success";
         app.mpesa_receipt = result.TransactionReceipt || app.mpesa_receipt;
         app.transaction_id = result.TransactionID || app.transaction_id;
       }
+      // ---- Failure / cancel / expiry ----
+      else if (
+        txStatus === "failed" ||
+        txStatus === "cancelled" ||
+        txStatus === "canceled" ||
+        txStatus === "rejected" ||
+        txStatus === "expired" ||
+        txStatus === "timeout" ||
+        txStatus === "timed out"
+      ) {
+        app.status = "failed";
+        app.failure_reason =
+          result.ResultDesc ||
+          result.TransactionStatus ||
+          "Transaction was not completed";
+        console.log(
+          `⚠️ Marking ${app.id} as failed: ${app.failure_reason}`,
+        );
+      }
+      // ---- Otherwise leave as pending (still waiting) ----
     } catch (err) {
       console.warn(
         "⚠️ MegaPay status query failed:",
@@ -262,9 +291,24 @@ app.get("/api/check-payment-status-by-app/:applicationId", async (req, res) => {
     }
   }
 
+  // Auto-fail very old pending applications (>5 minutes) so the frontend
+  // doesn't poll forever if MegaPay never reports a final status.
+  if (app.status === "pending") {
+    const ageMs = Date.now() - new Date(app.created_at).getTime();
+    if (ageMs > 5 * 60 * 1000) {
+      app.status = "failed";
+      app.failure_reason =
+        app.failure_reason || "Timed out waiting for M-PESA confirmation";
+      console.log(
+        `⌛ Auto-failing ${app.id} after 5 minutes pending: ${app.failure_reason}`,
+      );
+    }
+  }
+
   return res.json({
     success: true,
     status: app.status,
+    message: app.failure_reason || null,
     data: { mpesa_receipt_number: app.mpesa_receipt || null },
   });
 });
@@ -299,18 +343,24 @@ app.post("/api/callback", (req, res) => {
     return res.status(200).json({ received: true });
   }
 
-  app.status = Number(ResponseCode) === 0 ? "success" : "failed";
+  const success = Number(ResponseCode) === 0;
+  app.status = success ? "success" : "failed";
   app.mpesa_receipt = TransactionReceipt || app.mpesa_receipt;
   app.transaction_id = TransactionID || app.transaction_id;
   app.checkout_request_id = CheckoutRequestID || app.checkout_request_id;
   app.merchant_request_id = MerchantRequestID || app.merchant_request_id;
   app.callback_data = req.body;
 
+  if (!success) {
+    app.failure_reason =
+      ResponseDescription || "Payment was cancelled or failed";
+  }
+
   console.log(`✅ ${app.id} → ${app.status}`);
   return res.status(200).json({ received: true });
 });
 
-// ===== 5. Mock check-application-status (unchanged) =====
+// ===== 5. Mock check-application-status =====
 app.post("/api/check-application-status", (req, res) => {
   const { phoneNumber, idNumber } = req.body;
   const mockApps = [];
